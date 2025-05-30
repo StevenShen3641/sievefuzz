@@ -12,7 +12,7 @@ if [ ! -d "$FUZZER/repo" ]; then
 fi
 
 cd "$FUZZER/SVF"
-source ./build.sh
+./build.sh || true
 
 cd "$FUZZER/repo"
 AF=1 TRACE_METRIC=1 CC=clang-9 CXX=clang++-9 LLVM_CONFIG=llvm-config-9 make all -j $(nproc) || exit 1
