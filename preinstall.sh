@@ -20,12 +20,12 @@ wget https://go.dev/dl/go1.20.linux-amd64.tar.gz
 tar -C /usr/local -xzf go1.20.linux-amd64.tar.gz
 
 # revert bnutils version back to 2.26.1 for objcopy compatibility
+mv /usr/bin/objcopy /usr/bin/objcopy-2.30
+
 wget https://ftp.gnu.org/gnu/binutils/binutils-2.26.1.tar.gz
 tar -xzf binutils-2.26.1.tar.gz
 cd binutils-2.26.1
 ./configure --prefix=/opt/binutils-2.26.1
 make -j$(nproc)
-sudo make install
-
-export PATH=/opt/binutils-2.26.1/bin:$PATH
+make install
 
