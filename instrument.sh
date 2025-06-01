@@ -67,12 +67,13 @@ make_bitcode() {
         else
             echo
         fi     
+        ;;
+    esac
 
     # Create bitcode
     cd $OUT/BITCODE
     echo "$GETBC -a $AF_AR -l $AF_LLVMLINK $(ls -1 | head -n 1)"
     $GETBC -a $AF_AR -l $AF_LLVMLINK $(ls -1 | head -n 1)
-    cd -
 }
 
 # Variant with function activation policy inferred through static analysis
@@ -91,19 +92,15 @@ make_sievefuzz() {
     build_magma_target
 
     # Copy over the function indices list
-    mkdir $OUT/sievefuzz
+    mkdir $PREFIX
 
-    cp /tmp/fn_indices.txt $OUT/sievefuzz/fn_indices.txt
-    cd -
-
+    cp /tmp/fn_indices.txt $PREFIX/fn_indices.txt
     echo "[X] Please check that the two numbers are within delta of 1. If not, automatically re-run the script to build the target. This info is used to sanity-check that each function was assigned a unique ID" 
     cat /tmp/fn_indices.txt | wc -l && tail -n1 /tmp/fn_indices.txt
 
     while true; do
         line_count=$(wc -l < /tmp/fn_indices.txt)
         last_line=$(tail -n1 /tmp/fn_indices.txt)
-        
-        # Extract the number after the last colon
         last_num=$(echo "$last_line" | awk -F':' '{print $NF}')
         
         # Check if line count <= last number + 1
@@ -120,10 +117,6 @@ make_sievefuzz() {
 make_bitcode
 make_sievefuzz
 
-# rm -rf $OUT/sievefuzz
-# mkdir -p $OUT/sievefuzz
-
-# make_sievefuzz
 
 # export CC="$FUZZER/repo/afl-clang-fast"
 # export CXX="$FUZZER/repo/afl-clang-fast++"

@@ -15,9 +15,15 @@ if nm "$OUT/afl/$PROGRAM" | grep -E '^[0-9a-f]+\s+[Ww]\s+main$'; then
     ARGS="-"
 fi
 
-mkdir -p "$SHARED/findings"
+mkdir -p "$SHARED/findings/output"
 
-flag_cmplog=(-m none -c "$OUT/cmplog/$PROGRAM")
+declare -A targets
+targets["PDF006"]="blitTransparent"
+# targets["PDF006"]="blitTransparent"
+# targets["PDF006"]="blitTransparent"
+# targets["PDF006"]="blitTransparent"
+# targets["PDF006"]="blitTransparent"
+# targets["PDF006"]="blitTransparent"
 
 export AFL_SKIP_CPUFREQ=1
 export AFL_NO_AFFINITY=1
@@ -25,6 +31,12 @@ export AFL_NO_UI=1
 export AFL_MAP_SIZE=256000
 export AFL_DRIVER_DONT_DEFER=1
 
-"$FUZZER/repo/afl-fuzz" -i "$TARGET/corpus/$PROGRAM" -o "$SHARED/findings" \
-    "${flag_cmplog[@]}" -d \
-    $FUZZARGS -- "$OUT/afl/$PROGRAM" $ARGS 2>&1
+
+"$FUZZER/SVF/Release-build/bin/svf-ex" -p=6200 --tag="$SHARED/findings/output" \
+    -f="${targets[${PATCH_NAME}]}" --get-indirect --activation="$OUT/sievefuzz/fn_indices.txt" \
+    --stat=false --run-server --dump-stats "$OUT/BITCODE/${PROGRAM}.bc" &
+
+sleep 30
+
+"$FUZZER/repo/afl-fuzz" -m none -P 6200 -i "$TARGET/corpus/$PROGRAM" -o "$SHARED/findings" \
+    -d $FUZZARGS -- "$OUT/$PROGRAM" $ARGS 2>&1
