@@ -19,6 +19,7 @@ mkdir -p "$SHARED/findings/output"
 
 declare -A targets
 targets["PDF006"]="blitTransparent"
+targets["TIF007"]="ChopUpSingleUncompressedStrip"
 # targets["PDF006"]="blitTransparent"
 # targets["PDF006"]="blitTransparent"
 # targets["PDF006"]="blitTransparent"

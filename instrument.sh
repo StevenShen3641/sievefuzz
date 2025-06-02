@@ -10,8 +10,7 @@ set -ex
 # - env CFLAGS and CXXFLAGS must be set to link against Magma instrumentation
 ##
 
-ROOT="$FUZZER"
-sievefuzz="$ROOT/repo" # AFL with SieveFuzz specific modifications
+sievefuzz="$FUZZER/repo" # AFL with SieveFuzz specific modifications
 
 # revert bnutils version back to 2.26.1 for objcopy compatibility
 export PATH=/opt/binutils-2.26.1/bin:$PATH
@@ -21,12 +20,30 @@ AF_CLANGXX="clang++"
 AF_LLVMCONFIG="llvm-config"
 AF_AR="llvm-ar-9"
 AF_LLVMLINK="llvm-link"
-GCLANG="$ROOT/SVF/Release-build/bin/gclang"
-GCLANGXX="$ROOT/SVF/Release-build/bin/gclang++"
-GETBC="$ROOT/SVF/Release-build/bin/get-bc"
+GCLANG="$FUZZER/SVF/Release-build/bin/gclang"
+GCLANGXX="$FUZZER/SVF/Release-build/bin/gclang++"
+GETBC="$FUZZER/SVF/Release-build/bin/get-bc"
 
 # Declare a binary folder loc array
 export NAME=$(basename "$TARGET")
+
+# Modify configure files for SVF compatibility
+case $NAME in 
+"libtiff")
+    if [[ "${PATCH_NAME}" == "TIF007" ]]; then
+        sed -i 's|./configure --disable-shared --prefix="\$WORK"|./configure --disable-jpeg --disable-old-jpeg --disable-lzma --disable-shared --prefix="\$WORK"|' $TARGET/build.sh
+    else
+        echo
+    fi     
+    ;;
+"poppler")
+    if [[ "${PATCH_NAME}" == "PDF006" ]]; then
+        cp "$TARGET/work/poppler/utils/pdftoppm" "$OUT/BITCODE/"
+    else
+        echo
+    fi     
+    ;;
+esac
 
 clean_counters() {
     rm -f /tmp/fn_indices.txt
@@ -55,11 +72,15 @@ make_bitcode() {
     clean_counters
     build_magma_target
 
-    mkdir $PREFIX
+    mkdir -p $PREFIX
 
     case $NAME in 
     "libtiff")
-        echo
+        if [[ "${PATCH_NAME}" == "TIF007" ]]; then
+            cp "$TARGET/work/bin/tiffcp" "$OUT/BITCODE/"
+        else
+            echo
+        fi     
         ;;
     "poppler")
         if [[ "${PATCH_NAME}" == "PDF006" ]]; then
@@ -91,9 +112,9 @@ make_sievefuzz() {
     clean_counters
     build_magma_target
 
-    # Copy over the function indices list
-    mkdir $PREFIX
+    mkdir -p $PREFIX
 
+    # Copy over the function indices list
     cp /tmp/fn_indices.txt $PREFIX/fn_indices.txt
     echo "[X] Please check that the two numbers are within delta of 1. If not, automatically re-run the script to build the target. This info is used to sanity-check that each function was assigned a unique ID" 
     cat /tmp/fn_indices.txt | wc -l && tail -n1 /tmp/fn_indices.txt
@@ -116,18 +137,6 @@ make_sievefuzz() {
 
 make_bitcode
 make_sievefuzz
-
-
-# export CC="$FUZZER/repo/afl-clang-fast"
-# export CXX="$FUZZER/repo/afl-clang-fast++"
-# export AS="llvm-as"
-
-# export LIBS="$LIBS -lc++ -lc++abi $FUZZER/repo/utils/aflpp_driver/libAFLDriver.a"
-
-# # AFL++'s driver is compiled against libc++
-# export CXXFLAGS="$CXXFLAGS -stdlib=libc++"
-
-
 
 # NOTE: We pass $OUT directly to the target build.sh script, since the artifact
 #       itself is the fuzz target. In the case of Angora, we might need to
