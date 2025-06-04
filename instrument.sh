@@ -12,6 +12,8 @@ set -ex
 
 sievefuzz="$FUZZER/repo" # AFL with SieveFuzz specific modifications
 
+# export LIBS="$LIBS -l:afl_driver.o -lstdc++"
+
 # revert bnutils version back to 2.26.1 for objcopy compatibility
 export PATH=/opt/binutils-2.26.1/bin:$PATH
 
@@ -28,8 +30,12 @@ GETBC="$FUZZER/SVF/Release-build/bin/get-bc"
 export NAME=$(basename "$TARGET")
 
 # Modify configure files for SVF compatibility
-case $NAME in 
+case $NAME in
+"libsndfile")
+    echo
+    ;;
 "libtiff")
+    sed -i '/^# Get latest config\.guess and config\.sub from upstream master since/,$d' $TARGET/repo/autogen.sh
     if [[ "${PATCH_NAME}" == "TIF007" ]]; then
         sed -i 's|./configure --disable-shared --prefix="\$WORK"|./configure --disable-jpeg --disable-old-jpeg --disable-lzma --disable-shared --prefix="\$WORK"|' $TARGET/build.sh
     else
@@ -65,7 +71,7 @@ make_bitcode() {
 
     export CC=$GCLANG
     export CXX=$GCLANGXX
-    export CFLAGS="-g" 
+    # export CFLAGS="$CFLAGS -g" 
     export LLVM_CONFIG=$AF_LLVMCONFIG
     export PREFIX=$OUT/BITCODE
 
@@ -75,6 +81,9 @@ make_bitcode() {
     mkdir -p $PREFIX
 
     case $NAME in 
+    "libsndfile")
+        cp 
+        ;;
     "libtiff")
         if [[ "${PATCH_NAME}" == "TIF007" ]]; then
             cp "$TARGET/work/bin/tiffcp" "$OUT/BITCODE/"

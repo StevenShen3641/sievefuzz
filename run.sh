@@ -33,7 +33,7 @@ export AFL_MAP_SIZE=256000
 export AFL_DRIVER_DONT_DEFER=1
 
 
-"$FUZZER/SVF/Release-build/bin/svf-ex" -p=6200 --tag="$SHARED/findings/output" \
+"$FUZZER/SVF/Release-build/bin/svf-ex" -p=6200 --tag="$SHARED/findings/output_000" \
     -f="${targets[${PATCH_NAME}]}" --get-indirect --activation="$OUT/sievefuzz/fn_indices.txt" \
     --stat=false --run-server --dump-stats "$OUT/BITCODE/${PROGRAM}.bc" &
 

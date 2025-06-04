@@ -24,3 +24,7 @@ cp "$FUZZER/src/gllvm_bins/"* "$FUZZER/SVF/Release-build/bin/"
 
 # Need to check aflpp driver
 # mkdir -p "$OUT/afl" "$OUT/cmplog"
+
+# compile afl_driver.cpp
+cd "$FUZZER/repo"
+"./afl-clang-fast++" $CXXFLAGS -std=c++11 -c "afl_driver.cpp" -fPIC -o "$OUT/afl_driver.o"
