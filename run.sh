@@ -20,6 +20,8 @@ mkdir -p "$SHARED/findings/output"
 declare -A targets
 targets["PDF006"]="blitTransparent"
 targets["TIF007"]="ChopUpSingleUncompressedStrip"
+targets["TIF012"]="setExtraSamples"
+targets["TIF014"]="ChopUpSingleUncompressedStrip"
 # targets["PDF006"]="blitTransparent"
 # targets["PDF006"]="blitTransparent"
 # targets["PDF006"]="blitTransparent"
@@ -33,7 +35,7 @@ export AFL_MAP_SIZE=256000
 export AFL_DRIVER_DONT_DEFER=1
 
 
-"$FUZZER/SVF/Release-build/bin/svf-ex" -p=6200 --tag="$SHARED/findings/output_000" \
+"$FUZZER/SVF/Release-build/bin/svf-ex" -p=6200 --tag="$SHARED/findings/output" \
     -f="${targets[${PATCH_NAME}]}" --get-indirect --activation="$OUT/sievefuzz/fn_indices.txt" \
     --stat=false --run-server --dump-stats "$OUT/BITCODE/${PROGRAM}.bc" &
 

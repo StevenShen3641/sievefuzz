@@ -12,7 +12,8 @@ set -ex
 
 sievefuzz="$FUZZER/repo" # AFL with SieveFuzz specific modifications
 
-# export LIBS="$LIBS -l:afl_driver.o -lstdc++"
+TEMP_LIBS=$LIBS
+AFL_RT="$sievefuzz/afl-llvm-rt.o"
 
 # revert bnutils version back to 2.26.1 for objcopy compatibility
 export PATH=/opt/binutils-2.26.1/bin:$PATH
@@ -26,7 +27,6 @@ GCLANG="$FUZZER/SVF/Release-build/bin/gclang"
 GCLANGXX="$FUZZER/SVF/Release-build/bin/gclang++"
 GETBC="$FUZZER/SVF/Release-build/bin/get-bc"
 
-# Declare a binary folder loc array
 export NAME=$(basename "$TARGET")
 
 # Modify configure files for SVF compatibility
@@ -36,11 +36,7 @@ case $NAME in
     ;;
 "libtiff")
     sed -i '/^# Get latest config\.guess and config\.sub from upstream master since/,$d' $TARGET/repo/autogen.sh
-    if [[ "${PATCH_NAME}" == "TIF007" ]]; then
-        sed -i 's|./configure --disable-shared --prefix="\$WORK"|./configure --disable-jpeg --disable-old-jpeg --disable-lzma --disable-shared --prefix="\$WORK"|' $TARGET/build.sh
-    else
-        echo
-    fi     
+    sed -i 's|./configure --disable-shared --prefix="\$WORK"|./configure --disable-jpeg --disable-old-jpeg --disable-lzma --disable-shared --prefix="\$WORK"|' $TARGET/build.sh
     ;;
 "poppler")
     if [[ "${PATCH_NAME}" == "PDF006" ]]; then
@@ -62,6 +58,8 @@ build_magma_target() {
 }
 
 make_bitcode() {
+    # Add afl-llvm-rt.o for gclang to compile afl_driver
+    export LIBS="$TEMP_LIBS -l:afl_driver.o $AFL_RT -lstdc++"
 
     # Sets up the Gclang to use clang-9.0 as the compiler
     export PATH=$PATH:/usr/local/go/bin
@@ -71,7 +69,6 @@ make_bitcode() {
 
     export CC=$GCLANG
     export CXX=$GCLANGXX
-    # export CFLAGS="$CFLAGS -g" 
     export LLVM_CONFIG=$AF_LLVMCONFIG
     export PREFIX=$OUT/BITCODE
 
@@ -85,11 +82,7 @@ make_bitcode() {
         cp 
         ;;
     "libtiff")
-        if [[ "${PATCH_NAME}" == "TIF007" ]]; then
-            cp "$TARGET/work/bin/tiffcp" "$OUT/BITCODE/"
-        else
-            echo
-        fi     
+        cp "$TARGET/work/bin/tiffcp" "$OUT/BITCODE/"
         ;;
     "poppler")
         if [[ "${PATCH_NAME}" == "PDF006" ]]; then
@@ -108,6 +101,8 @@ make_bitcode() {
 
 # Variant with function activation policy inferred through static analysis
 make_sievefuzz() {
+    export LIBS="$TEMP_LIBS -l:afl_driver.o -lstdc++"
+
     # Setup environment variables
     export CC=$sievefuzz/afl-clang-fast
     export CXX=$sievefuzz/afl-clang-fast++
