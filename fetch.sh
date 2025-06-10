@@ -52,6 +52,7 @@ cp "$FUZZER/src/afl/afl-llvm-rt.o.c" "$FUZZER/repo/llvm_mode/afl-llvm-rt.o.c"
 
 cp "$FUZZER/src/afl/fn_bit.txt" "$FUZZER/repo/llvm_mode/fn_bit.txt"
 
-# AFL driver
-cp "$FUZZER/src/afl_driver.cpp" "$FUZZER/repo/afl_driver.cpp"
-
+# AFL++ driver
+mkdir -p "$FUZZER/repo/utils/aflpp_driver"
+cp "$FUZZER/src/aflpp_driver.c" "$FUZZER/repo/utils/aflpp_driver/aflpp_driver.c"
+cp "$FUZZER/src/GNUmakefile" "$FUZZER/repo/utils/aflpp_driver/GNUmakefile"

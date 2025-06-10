@@ -18,10 +18,19 @@ fi
 mkdir -p "$SHARED/findings/output"
 
 declare -A targets
+targets["PNG003"]="MAGMA_png_handle_PLTE"
+
 targets["PDF006"]="blitTransparent"
+
+targets["SSL003"]="asn1_d2i_read_bio"
+
+targets["PHP011"]="exif_offset_info_try_get"
+
 targets["TIF007"]="ChopUpSingleUncompressedStrip"
 targets["TIF012"]="setExtraSamples"
 targets["TIF014"]="ChopUpSingleUncompressedStrip"
+
+targets["LUA004"]="luaG_traceexec"
 # targets["PDF006"]="blitTransparent"
 # targets["PDF006"]="blitTransparent"
 # targets["PDF006"]="blitTransparent"

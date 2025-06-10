@@ -59,7 +59,7 @@ build_magma_target() {
 
 make_bitcode() {
     # Add afl-llvm-rt.o for gclang to compile afl_driver
-    export LIBS="$TEMP_LIBS -l:afl_driver.o $AFL_RT -lstdc++"
+    export LIBS="$TEMP_LIBS -l:aflpp_driver.o $AFL_RT -lc++ -lc++abi"
 
     # Sets up the Gclang to use clang-9.0 as the compiler
     export PATH=$PATH:/usr/local/go/bin
@@ -72,14 +72,38 @@ make_bitcode() {
     export LLVM_CONFIG=$AF_LLVMCONFIG
     export PREFIX=$OUT/BITCODE
 
+    ####
+    cd "$FUZZER/repo/utils/aflpp_driver"
+    $CC -I. -I../../include -g -c aflpp_driver.c -o aflpp_driver.o
+    # cd "$FUZZER/repo"
+    # make -C utils/aflpp_driver clean || exit 1
+    # make -C utils/aflpp_driver || exit 1
+    cp $FUZZER/repo/utils/aflpp_driver/aflpp_driver.o $OUT
+
     clean_counters
     build_magma_target
 
     mkdir -p $PREFIX
 
     case $NAME in 
+    "libpng")
+        cp "$OUT/libpng_read_fuzzer" "$OUT/BITCODE/"
+        ;;
+    "lua")
+        cp "$OUT/lua" "$OUT/BITCODE/"
+        ;;
     "libsndfile")
         cp 
+        ;;
+    "openssl")
+        if [[ "${PATCH_NAME}" == "SSL001" || "${PATCH_NAME}" == "SSL003" ]]; then
+            cp "$OUT/asn1" "$OUT/BITCODE/"
+        else
+            echo
+        fi  
+        ;;
+    "php")
+        cp "$OUT/exif" "$OUT/BITCODE/"
         ;;
     "libtiff")
         cp "$TARGET/work/bin/tiffcp" "$OUT/BITCODE/"
@@ -101,7 +125,7 @@ make_bitcode() {
 
 # Variant with function activation policy inferred through static analysis
 make_sievefuzz() {
-    export LIBS="$TEMP_LIBS -l:afl_driver.o -lstdc++"
+    export LIBS="$TEMP_LIBS -l:aflpp_driver.o -lc++ -lc++abi"
 
     # Setup environment variables
     export CC=$sievefuzz/afl-clang-fast
@@ -112,6 +136,12 @@ make_sievefuzz() {
     export AFL_USE_ASAN=1
     export PREFIX=$OUT/sievefuzz
     export ASAN_OPTIONS=detect_leaks=0
+
+    ####
+    cd "$FUZZER/repo"
+    make -C utils/aflpp_driver clean || exit 1
+    AF=1 TRACE_METRIC=1 CC=clang-9 CXX=clang++-9 LLVM_CONFIG=llvm-config-9 make -C utils/aflpp_driver || exit 1
+    cp $FUZZER/repo/utils/aflpp_driver/aflpp_driver.o $OUT
 
     clean_counters
     build_magma_target

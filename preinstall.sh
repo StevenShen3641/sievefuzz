@@ -3,8 +3,10 @@ set -e
 
 apt update && \
     apt install -y \
-    silversearcher-ag beanstalkd gdb screen patchelf apt-transport-https ca-certificates clang-9 libclang-9-dev zlib1g-dev\
+    silversearcher-ag beanstalkd gdb screen patchelf apt-transport-https ca-certificates clang-9 libclang-9-dev zlib1g-dev libc++-dev libc++abi-dev\
     gcc-7 g++-7 sudo curl wget build-essential make cmake ninja-build git subversion python3 python3-dev python3-pip autoconf automake &&\
+apt install -y libtool-bin flex bison libglib2.0-dev libpixman-1-dev python3-setuptools
+
     python3 -m pip install --upgrade pip && python3 -m pip install greenstalk psutil 
 
 update-alternatives --install /usr/bin/clang clang /usr/bin/clang-9 10 \
