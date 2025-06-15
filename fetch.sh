@@ -13,6 +13,10 @@ git -C "$FUZZER/SVF" checkout a99ee34ed34a67ce72f028ca9dbd8005b5463d05
 cp "$FUZZER/src/svf/setup.sh" "$FUZZER/SVF/setup.sh"
 cp "$FUZZER/src/svf/build.sh" "$FUZZER/SVF/build.sh"
 
+###
+# cp "$FUZZER/src/svf/SVFModule.h" "$FUZZER/SVF/include/Util/SVFModule.h"
+###
+
 cp "$FUZZER/src/svf/svf-ex.cpp" "$FUZZER/SVF/tools/Example/svf-ex.cpp"
 cp "$FUZZER/src/svf/GenericGraph.h" "$FUZZER/SVF/include/Graphs/GenericGraph.h"
 cp "$FUZZER/src/svf/CMakeLists.txt" "$FUZZER/SVF/tools/Example/CMakeLists.txt"

@@ -20,6 +20,8 @@ mkdir -p "$SHARED/findings/output"
 declare -A targets
 targets["PNG003"]="MAGMA_png_handle_PLTE"
 
+targets["SND005"]="aiff_read_chanmap"
+
 targets["PDF006"]="blitTransparent"
 
 targets["SSL003"]="asn1_d2i_read_bio"
@@ -42,6 +44,8 @@ export AFL_NO_AFFINITY=1
 export AFL_NO_UI=1
 export AFL_MAP_SIZE=256000
 export AFL_DRIVER_DONT_DEFER=1
+
+export PROGRAM=sndfile_fuzzer
 
 
 "$FUZZER/SVF/Release-build/bin/svf-ex" -p=6200 --tag="$SHARED/findings/output" \

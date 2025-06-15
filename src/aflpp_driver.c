@@ -92,9 +92,9 @@ __attribute__((weak)) int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Siz
 __attribute__((weak)) int LLVMFuzzerInitialize(int *argc, char ***argv);
 
 // Notify AFL about persistent mode.
-// DISABLED to avoid afl-showmap misbehavior
-static volatile char AFL_PERSISTENT[] = "##SIG_AFL_NOT_PERSISTENT##";
-int                  __afl_persistent_loop(unsigned int);
+/* Old AFL++ needs the real marker to enable persistent mode */
+static volatile char AFL_PERSISTENT[] =
+    "##SIG_AFL_PERSISTENT##";
 
 // Notify AFL about deferred forkserver.
 static volatile char AFL_DEFER_FORKSVR[] = "##SIG_AFL_DEFER_FORKSRV##";
