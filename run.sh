@@ -45,7 +45,7 @@ export AFL_NO_UI=1
 export AFL_MAP_SIZE=256000
 export AFL_DRIVER_DONT_DEFER=1
 
-export PROGRAM=sndfile_fuzzer
+# export PROGRAM=sndfile_fuzzer
 
 
 "$FUZZER/SVF/Release-build/bin/svf-ex" -p=6200 --tag="$SHARED/findings/output" \
